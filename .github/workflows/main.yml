@@ -97,12 +97,11 @@ jobs:
 
     - name: Run crave devspace
       run: |
-        crave devspace -- "cd actions-runner; 
-        if tmux has-session -t ghactions   2>/dev/null; then 
+        crave devspace -- "if tmux has-session -t ghactions   2>/dev/null; then 
           echo "Runner is already Running" 
         else 
           tmux new-session -d -s ghactions 
-          tmux send-keys -t ghactions './run.sh' Enter 
+          tmux send-keys -t ghactions 'cd actions-runner; ./run.sh' Enter 
           echo "Runner Started"
         fi "
   test:
