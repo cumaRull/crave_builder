@@ -97,12 +97,12 @@ jobs:
 
     - name: Run crave devspace
       run: |
-        crave devspace -- "cd actions-runner; \
-        if tmux has-session -t ghactions   2>/dev/null; then \
-          echo "tmux session 'ghactions' already exists" \
-        else \
-          tmux new-session -d -s ghactions \
-          tmux send-keys -t ghactions './run.sh' Enter \
+        crave devspace -- "cd actions-runner; 
+        if tmux has-session -t ghactions   2>/dev/null; then 
+          echo "tmux session 'ghactions' already exists" 
+        else 
+          tmux new-session -d -s ghactions 
+          tmux send-keys -t ghactions './run.sh' Enter 
         fi "
   test:
     name: Build using foss.crave.io
