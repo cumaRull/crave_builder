@@ -66,10 +66,51 @@ on:
         - 'no'
 
 jobs:
+  run-devspace-and-tmux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y tmux
+
+      # Download and configure 'crave'.
+    - name: Configure the 'crave' environment
+      run: |
+        if [ "${DCDEVSPACE}" == "1" ]; then
+        echo 'No need to set up crave, we are already running in devspace!'
+        else
+          curl -s https://raw.githubusercontent.com/accupara/crave/master/get_crave.sh | bash -s --
+          mv ${PWD}/crave ${HOME}/bin/
+          sudo ln -sf /home/${USER}/bin/crave /usr/bin/crave
+          envsubst < ${PWD}/crave.conf.sample >> ${PWD}/crave.conf
+          rm -rf ${PWD}/crave.conf.sample          
+        fi
+      env:
+        CRAVE_USERNAME: ${{  secrets.CRAVE_USERNAME  }}
+        CRAVE_TOKEN: ${{  secrets.CRAVE_TOKEN  }}
+
+    - name: Run crave devspace
+      run: |
+        crave devspace
+
+    - name: Check for tmux session
+      run: |
+        if tmux has-session -t ghactions   2>/dev/null; then
+          echo "tmux session 'ghactions' already exists"
+        else
+          tmux new-session -d -s ghactions
+          tmux send-keys -t ghactions './run.sh' Enter
+        fi
+      working-directory: actions-runner
   test:
     name: Build using foss.crave.io
-      # Change this to self-hosted after setting up devspace as github actions runner
-    runs-on: ubuntu-latest
+    needs: run-devspace-and-tmux    
+    runs-on: self-hosted
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
