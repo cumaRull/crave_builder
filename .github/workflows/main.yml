@@ -301,8 +301,12 @@ jobs:
           Target: ${{ github.event.inputs.PRODUCT_NAME }}-${{ github.event.inputs.BUILD_TYPE }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Test Upload To PixelDrain
+      run: |
+            Fileku=$PROJECTFOLDER/${{ github.event.inputs.DEVICE_NAME }}/*.zip
+            curl -T "$Fileku" -u :${{ secrets.PIXELDRAIN_API }} https://pixeldrain.com/api/file/
     - name: Test Upload to Telegram
-      working-directory: android/
       run: |
               img=$PROJECTFOLDER/${{ github.event.inputs.DEVICE_NAME }}/*.zip
               curl -F document=@$img "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendDocument" \
